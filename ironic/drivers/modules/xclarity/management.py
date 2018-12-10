@@ -126,10 +126,16 @@ class XClarityManagement(base.ManagementInterface):
             boot_type = item.get('bootType', None)
             if boot_type == "SingleUse":
                 persistent = False
+                if primary != 'None':
+                    boot_device = {
+                        'boot_device':
+                            BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
+                        'persistent': persistent
+                    }
+                    self._validate_supported_boot_device(primary)
+                    return boot_device
             elif boot_type == "Permanent":
                 persistent = True
-
-            if primary != 'None':
                 boot_device = {
                     'boot_device':
                         BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
