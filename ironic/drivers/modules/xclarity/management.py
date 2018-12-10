@@ -81,7 +81,8 @@ class XClarityManagement(base.ManagementInterface):
         """It validates if the boot device is supported by XClarity.
 
         :param task: a task from TaskManager.
-        :param boot_device: the boot device, one of [PXE, DISK, CDROM, BIOS]
+        :param boot_device: the boot device in XClarity format, one of
+            ['PXE Network', 'Hard Disk 0', 'CD/DVD Rom', 'Boot To F1']
         :raises: InvalidParameterValue if the boot device is not supported.
         """
         if boot_device not in BOOT_DEVICE_MAPPING_FROM_XCLARITY:
@@ -125,15 +126,15 @@ class XClarityManagement(base.ManagementInterface):
             boot_type = item.get('bootType', None)
             if boot_type == "SingleUse":
                 persistent = False
-                if primary != 'None':
-                    boot_device = {'boot_device': primary,
-                                   'persistent': persistent}
-                    self._validate_supported_boot_device(primary)
-                    return boot_device
             elif boot_type == "Permanent":
                 persistent = True
-                boot_device = {'boot_device': primary,
-                               'persistent': persistent}
+
+            if primary != 'None':
+                boot_device = {
+                    'boot_device':
+                        BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
+                    'persistent': persistent
+                }
                 self._validate_supported_boot_device(task, primary)
                 return boot_device
 
@@ -154,7 +155,6 @@ class XClarityManagement(base.ManagementInterface):
         """
         node = task.node
         xc_device = self._translate_ironic_to_xclarity(device)
-        self._validate_supported_boot_device(task=task, boot_device=xc_device)
 
         server_hardware_id = common.get_server_hardware_id(node)
         LOG.debug("Setting boot device to %(device)s for node %(node)s",
