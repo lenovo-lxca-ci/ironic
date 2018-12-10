@@ -122,26 +122,29 @@ class XClarityManagement(base.ManagementInterface):
         boot_order = boot_info['bootOrder']['bootOrderList']
         for item in boot_order:
             current = item.get('currentBootOrderDevices', None)
-            primary = current[0]
+            if current is None:
+                return {'boot_device': None, 'persistent': None}
+            else:
+                primary = current[0]
             boot_type = item.get('bootType', None)
             if boot_type == "SingleUse":
                 persistent = False
                 if primary != 'None':
+                    self._validate_supported_boot_device(task, primary)
                     boot_device = {
                         'boot_device':
                             BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
                         'persistent': persistent
                     }
-                    self._validate_supported_boot_device(primary)
                     return boot_device
             elif boot_type == "Permanent":
                 persistent = True
+                self._validate_supported_boot_device(task, primary)
                 boot_device = {
                     'boot_device':
                         BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
                     'persistent': persistent
                 }
-                self._validate_supported_boot_device(task, primary)
                 return boot_device
 
     @METRICS.timer('XClarityManagement.set_boot_device')
