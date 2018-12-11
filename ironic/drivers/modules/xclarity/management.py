@@ -138,8 +138,6 @@ class XClarityManagement(base.ManagementInterface):
                         'persistent': persistent
                     }
                     return boot_device
-                else:
-                    return {'boot_device': None, 'persistent': None}
             elif boot_type == "Permanent":
                 persistent = True
                 if primary != 'None':
