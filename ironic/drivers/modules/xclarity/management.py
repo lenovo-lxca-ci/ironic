@@ -97,7 +97,8 @@ class XClarityManagement(base.ManagementInterface):
 
         :param task: a task from TaskManager.
         :returns: a dictionary containing:
-            :boot_device: the boot device, one of [PXE, DISK, CDROM, BIOS]
+            :boot_device: the boot device, one of
+                [PXE, DISK, CDROM, BIOS, NONE]
             :persistent: Whether the boot device will persist or not
         :raises: InvalidParameterValue if the boot device is unknown
         :raises: XClarityError if the communication with XClarity fails
@@ -137,15 +138,20 @@ class XClarityManagement(base.ManagementInterface):
                         'persistent': persistent
                     }
                     return boot_device
+                else:
+                    return {'boot_device': None, 'persistent': None}
             elif boot_type == "Permanent":
                 persistent = True
-                self._validate_supported_boot_device(task, primary)
-                boot_device = {
-                    'boot_device':
-                        BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
-                    'persistent': persistent
-                }
-                return boot_device
+                if primary != 'None':
+                    self._validate_supported_boot_device(task, primary)
+                    boot_device = {
+                        'boot_device':
+                            BOOT_DEVICE_MAPPING_FROM_XCLARITY.get(primary),
+                        'persistent': persistent
+                    }
+                    return boot_device
+                else:
+                    return {'boot_device': None, 'persistent': None}
 
     @METRICS.timer('XClarityManagement.set_boot_device')
     @task_manager.require_exclusive_lock
