@@ -97,9 +97,9 @@ class XClarityManagement(base.ManagementInterface):
 
         :param task: a task from TaskManager.
         :returns: a dictionary containing:
-            :boot_device: the boot device, one of
-            [PXE, DISK, CDROM, BIOS, NONE]
+            :boot_device: the boot device, one of [PXE, DISK, CDROM, BIOS]
             :persistent: Whether the boot device will persist or not
+            It returns None if boot device is unknown.
         :raises: InvalidParameterValue if the boot device is unknown
         :raises: XClarityError if the communication with XClarity fails
         """
