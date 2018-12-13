@@ -122,12 +122,16 @@ class XClarityManagement(base.ManagementInterface):
         primary = None
         boot_order = boot_info['bootOrder']['bootOrderList']
         for item in boot_order:
-            current = item.get('currentBootOrderDevices', None)
+            current = item.get('currentBootOrderDevices')
             if current is None:
+                LOG.warning(
+                    'Current boot order is None from XClarity for '
+                    'node %(node)s. Please check the hardware and '
+                    'XClarity connection', {'node': node.uuid, })
                 return {'boot_device': None, 'persistent': None}
             else:
                 primary = current[0]
-            boot_type = item.get('bootType', None)
+            boot_type = item.get('bootType')
             if boot_type == "SingleUse":
                 persistent = False
                 if primary != 'None':
